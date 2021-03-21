@@ -38,7 +38,8 @@ def test_all_simple(quadratic_100):
     "CG, restarts": IterativeGradientOptimizer(ConjugateGradientDF(restart=15), ConstantSF(9e-3)),
     "Heavy ball": IterativeGradientOptimizer(HeavyBallDF(ConstantSF(1e-2), ConstantSF(0.9)), ConstantSF(1)),
     "Nesterov": IterativeGradientOptimizer(NesterovDF(BacktrackingSF(alpha0=1e-2, beta1=0.1, beta2=0.4, rho=0.5)), ConstantSF(1)),
-    "Newton": IterativeGradientOptimizer(SecondOrderNewtonDF(), ConstantSF(1))
+    "Newton": IterativeGradientOptimizer(SecondOrderNewtonDF(), ConstantSF(1)),
+    "BFSGD": IterativeGradientOptimizer(BFGSDF(H0=np.identity(100)), ConstantSF(2e-2))
     }
 
     np.random.seed(42)
@@ -49,5 +50,4 @@ def test_all_simple(quadratic_100):
         if name is not "Newton":
             del task['hessf']
         _, hist = opt.optimize(task, x0, max_iter=max_iter, tol=tol)
-        print(hist)
         assert hist[-1] < tol, "{} failed on a simple task".format(name)

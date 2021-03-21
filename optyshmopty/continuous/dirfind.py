@@ -107,7 +107,8 @@ class NesterovDF(DirectionFinderClass):
 
     return -h
 
-##############################
+
+#### Second order methods #####
 
 class SecondOrderNewtonDF(DirectionFinderClass):
 
@@ -125,3 +126,29 @@ class SecondOrderNewtonDF(DirectionFinderClass):
 
     h = self.hsolver(x)
     return -h
+
+class BFGSDF(DirectionFinderClass):
+
+    def __init__(self, H0):
+        self.H = H0
+
+    def setup(self, f, gradf, x0):
+        self.f = f; self.gradf = gradf; self.x0 = x0
+
+    def find(self, x):
+        return self.H.dot(self.gradf(x))
+
+    def update(self, x, alpha, h):
+
+        x_next = x - alpha * h
+
+        y = self.gradf(x_next) - self.gradf(x)
+        s = -alpha * h
+        rho = 1 / y.dot(s)
+
+        # Multiply everything in a right way, so that complexity is O(n^2)
+        Hy = self.H.dot(y)
+        Hys = np.outer(Hy, s)
+        ss = np.outer(s, s)
+
+        self.H = rho * ss + self.H - rho * Hys - rho * Hys.T + rho**2 * y.dot(Hy) * ss

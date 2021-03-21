@@ -11,6 +11,9 @@ class IterativeGradientOptimizer:
     self.direction_finder = direction_finder
     self.step_finder = step_finder
 
+    # Check if direction finder needs to update after a step
+    self.update = callable(getattr(direction_finder, "update", None))
+
   def optimize(self, func_info, x0, max_iter=100, tol=1e-8, save_history=True):
     '''
     func_info: dictionary with information about a function, that a chosen method
@@ -31,6 +34,9 @@ class IterativeGradientOptimizer:
       h = self.direction_finder.find(x)
       alpha = self.step_finder.find(x, h)
 
+      if self.update:
+          self.direction_finder.update(x, alpha, h)
+          
       x = x - alpha * h
 
       if save_history:
