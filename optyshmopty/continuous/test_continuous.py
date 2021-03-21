@@ -47,7 +47,5 @@ def test_all_simple(quadratic_100):
 
     for name, opt in optimizers.items():
         task = quadratic_100.copy()
-        if name is not "Newton":
-            del task['hessf']
         _, hist = opt.optimize(task, x0, max_iter=max_iter, tol=tol)
         assert hist[-1] < tol, "{} failed on a simple task".format(name)

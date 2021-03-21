@@ -1,4 +1,5 @@
 import numpy as np
+import inspect
 
 from .dirfind import DirectionFinderClass
 from .stepfind import StepFinderClass
@@ -14,12 +15,16 @@ class IterativeGradientOptimizer:
     # Check if direction finder needs to update after a step
     self.update = callable(getattr(direction_finder, "update", None))
 
+    # Delete unnecassary function info
+    self.desired_info = inspect.getfullargspec(direction_finder.setup).args
+
   def optimize(self, func_info, x0, max_iter=100, tol=1e-8, save_history=True):
     '''
     func_info: dictionary with information about a function, that a chosen method
     will need - has to include f and gradf. (check that naming of the arguments match)
     '''
 
+    func_info = {key: func_info[key] for key in filter(lambda x: x in self.desired_info, func_info.keys())}
     gradf = func_info['gradf']
 
     self.direction_finder.setup(**func_info, x0=x0)
@@ -36,7 +41,7 @@ class IterativeGradientOptimizer:
 
       if self.update:
           self.direction_finder.update(x, alpha, h)
-          
+
       x = x - alpha * h
 
       if save_history:
