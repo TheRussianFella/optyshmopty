@@ -11,10 +11,16 @@ class IterativeGradientOptimizer:
     self.direction_finder = direction_finder
     self.step_finder = step_finder
 
-  def optimize(self, f, gradf, x0, max_iter=100, tol=1e-8, save_history=True):
+  def optimize(self, func_info, x0, max_iter=100, tol=1e-8, save_history=True):
+    '''
+    func_info: dictionary with information about a function, that a chosen method
+    will need - has to include f and gradf. (check that naming of the arguments match)
+    '''
 
-    self.direction_finder.setup(f, gradf, x0)
-    self.step_finder.setup(f, gradf)
+    gradf = func_info['gradf']
+
+    self.direction_finder.setup(**func_info, x0=x0)
+    self.step_finder.setup(f=func_info['f'], gradf=func_info['gradf'])
 
     history = []
     x = x0
@@ -30,5 +36,7 @@ class IterativeGradientOptimizer:
       if save_history:
         history.append(gradn)
       gradn = np.linalg.norm(gradf(x)); it += 1
+
+    history.append(gradn)
 
     return (x, history)

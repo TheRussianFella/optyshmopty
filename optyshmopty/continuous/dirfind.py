@@ -1,4 +1,5 @@
 from .stepfind import StepFinderClass
+import numpy as np
 
 #### Direction finders
 # Theese are classes that find direction in
@@ -104,4 +105,23 @@ class NesterovDF(DirectionFinderClass):
     self.prev_x = x
     self.counter += 1
 
+    return -h
+
+##############################
+
+class SecondOrderNewtonDF(DirectionFinderClass):
+
+  def __init__(self, hsolver=None):
+
+    if hsolver is None:
+      self.hsolver = lambda x: np.linalg.solve(self.hessf(x), -self.gradf(x))
+    else:
+      self.hsolver = hsolver
+
+  def setup(self, f, gradf, hessf, x0):
+    self.f = f; self.gradf = gradf; self.hessf = hessf; self.x0 = x0
+
+  def find(self, x):
+
+    h = self.hsolver(x)
     return -h
